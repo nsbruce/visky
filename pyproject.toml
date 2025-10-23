@@ -1,0 +1,17 @@
+[project]
+name = "hadec-on-azel-grid"
+version = "0.0.0"
+description = "Given an earth location, plot lines of constant hour angle and declination on an azimuth-elevation grid"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "astropy>=7.1.1",
+    "numpy>=2.3.4",
+    "plotly>=6.3.1",
+]
+
+[dependency-groups]
+dev = [
+    "commitizen>=4.9.1",
+    "ruff>=0.14.2",
+]
