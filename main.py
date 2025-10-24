@@ -30,7 +30,7 @@ def split_two_on_gap_in_one(
     return groups
 
 
-def generate_hadec_map(location: EarthLocation) -> go.Figure:
+def hadec_on_azel_grid(location: EarthLocation) -> go.Figure:
     """Given an earth location, generate a Ha-Dec map projected onto an azel grid."""
     time = Time.now()
 
@@ -45,16 +45,23 @@ def generate_hadec_map(location: EarthLocation) -> go.Figure:
         els = []
         has = []
         decs = []
-        for dec in range(-40, 89, 1):
+        for dec in range(-89, 89, 1):
             azel_coord = SkyCoord(ha, dec, unit=(
                 "deg", "deg"), frame=HADec, location=location, obstime=time).transform_to(AltAz)
             az = azel_coord.spherical.lon.degree
             el = azel_coord.spherical.lat.degree
+
+            # at ha = 0 there are floating point errors which this avoids
+            if ha == 0 and round(az) != 180:
+                continue
+
             azs.append(az)
             els.append(el)
             has.append(ha)
             decs.append(dec)
+
         plot_groups = split_two_on_gap_in_one(azs, 5, els, has, decs)
+
         for azs, els, has, decs in plot_groups:
             label_idx = np.argmin([abs(el - 5) for el in els])
             show_legend_now = not ha_legend_shown
@@ -85,7 +92,7 @@ def generate_hadec_map(location: EarthLocation) -> go.Figure:
                 align="center",
             )
 
-    for dec in range(-30, 80, 10):
+    for dec in range(-80, 81, 10):
         azs = []
         els = []
         has = []
@@ -164,29 +171,50 @@ def generate_hadec_map(location: EarthLocation) -> go.Figure:
         align="center",
         xshift=50,
     )
-    ncp_el = SkyCoord(0, 90, unit=(
-        "deg", "deg"), frame=HADec, location=location, obstime=time).transform_to(AltAz).spherical.lat.degree
+    if location.lat >= 0:
+        ncp_el = SkyCoord(0, 90, unit=(
+            "deg", "deg"), frame=HADec, location=location, obstime=time).transform_to(AltAz).spherical.lat.degree
+        fig.add_annotation(
+            x=360,
+            y=ncp_el,
+            text="NCP",
+            showarrow=False,
+            font=dict(color="black", size=14, weight="bold"),
+            align="center",
+            bgcolor="white",
+        )
+        fig.add_annotation(
+            x=0,
+            y=ncp_el,
+            text="NCP",
+            showarrow=False,
+            font=dict(color="black", size=14, weight="bold"),
+            align="center",
+            bgcolor="white",
+        )
+    if location.lat <= 0:
+        scp_el = SkyCoord(0, -90, unit=(
+            "deg", "deg"), frame=HADec, location=location, obstime=time).transform_to(AltAz).spherical.lat.degree
+        fig.add_annotation(
+            x=180,
+            y=scp_el,
+            text="SCP",
+            showarrow=False,
+            font=dict(color="black", size=14, weight="bold"),
+            align="center",
+            bgcolor="white",
+        )
+        fig.add_annotation(
+            x=180,
+            y=scp_el,
+            text="SCP",
+            showarrow=False,
+            font=dict(color="black", size=14, weight="bold"),
+            align="center",
+            bgcolor="white",
+        )
 
-    fig.add_annotation(
-        x=360,
-        y=ncp_el,
-        text="NCP",
-        showarrow=False,
-        font=dict(color="black", size=14, weight="bold"),
-        align="center",
-        bgcolor="white",
-    )
-    fig.add_annotation(
-        x=0,
-        y=ncp_el,
-        text="NCP",
-        showarrow=False,
-        font=dict(color="black", size=14, weight="bold"),
-        align="center",
-        bgcolor="white",
-    )
     fig.update_layout(
-        # title="Ha-Dec Map Projected onto Az-El Grid",
         xaxis_title="Azimuth (degrees)",
         yaxis_title="Elevation (degrees)",
         xaxis=dict(
@@ -231,11 +259,16 @@ def generate_hadec_map(location: EarthLocation) -> go.Figure:
 
 if __name__ == "__main__":
     # this is the galt
-    telescope_location = EarthLocation.from_geodetic(
-        lat=49.32102306, lon=-119.61898028, height=546.566
+    # location = EarthLocation.from_geodetic(
+    #     lat=49.32102306, lon=-119.61898028, height=546.566
+    # )
+    # this is alma
+    # location = EarthLocation.of_site('alma')
+    # location = EarthLocation.of_site('parkes')
+    # this is random equatorial site
+    location = EarthLocation.from_geodetic(
+        lat=0.0, lon=0.0, height=1000.0
     )
-    figure = generate_hadec_map(telescope_location)
+    figure = hadec_on_azel_grid(location)
     figure.show()
-    figure.update_layout(width=1250, height=900)
-    figure.show()
-    # figure.write_image("azel_hadec_map.pdf", format="pdf", width=3508, height=2480)
+    # figure.write_html("galt_azel_hadec_map.html")
