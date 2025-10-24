@@ -1,37 +1,22 @@
 import numpy as np
 import plotly.graph_objects as go
-from astropy.coordinates import EarthLocation, SkyCoord, HADec, AltAz
+from astropy.coordinates import SkyCoord, HADec, AltAz
 from astropy.time import Time
-
-
-def split_two_on_gap_in_one(
-    seq_to_split_on: list[int | float],
-    threshold_for_split: int | float,
-    *other_seqs: list[list[int | float]],
-) -> list[list[int | float]]:
-    n = len(seq_to_split_on)
-
-    if any(len(s) != n for s in other_seqs):
-        raise ValueError("All sequences must have the same length")
-    if n == 0:
-        return []
-    groups = []
-    start = 0
-    for i in range(1, n):
-        if seq_to_split_on[i] - seq_to_split_on[i - 1] > threshold_for_split:
-            a_slice = seq_to_split_on[start:i]
-            b_slices = [s[start:i] for s in other_seqs]
-            groups.append([a_slice] + b_slices)
-            start = i
-    # final chunk
-    a_slice = seq_to_split_on[start:]
-    b_slices = [s[start:] for s in other_seqs]
-    groups.append([a_slice] + b_slices)
-    return groups
+from .utils import split_two_on_gap_in_one
+from .location import EarthLocation
 
 
 def hadec_on_azel_grid(location: EarthLocation) -> go.Figure:
-    """Given an earth location, generate a Ha-Dec map projected onto an azel grid."""
+    """
+    Given an earth location, generate a Ha-Dec map projected onto an azel grid.
+
+    Args:
+        location (EarthLocation): where on Earth to base the plot
+
+    Returns:
+        go.Figure: a plotly figure
+    """
+
     time = Time.now()
 
     fig = go.Figure()
@@ -41,26 +26,28 @@ def hadec_on_azel_grid(location: EarthLocation) -> go.Figure:
     dec_legend_shown = False
 
     for ha in range(-160, 161, 20):
-        azs = []
-        els = []
-        has = []
-        decs = []
+        all_azs: list[float] = []
+        all_els: list[float] = []
+        all_has: list[float] = []
+        all_decs: list[float] = []
+
         for dec in range(-89, 89, 1):
             azel_coord = SkyCoord(ha, dec, unit=(
                 "deg", "deg"), frame=HADec, location=location, obstime=time).transform_to(AltAz)
-            az = azel_coord.spherical.lon.degree
-            el = azel_coord.spherical.lat.degree
+            az: float = azel_coord.spherical.lon.degree
+            el: float = azel_coord.spherical.lat.degree
 
             # at ha = 0 there are floating point errors which this avoids
             if ha == 0 and round(az) != 180:
                 continue
 
-            azs.append(az)
-            els.append(el)
-            has.append(ha)
-            decs.append(dec)
+            all_azs.append(az)
+            all_els.append(el)
+            all_has.append(ha)
+            all_decs.append(dec)
 
-        plot_groups = split_two_on_gap_in_one(azs, 5, els, has, decs)
+        plot_groups = split_two_on_gap_in_one(
+            all_azs, 5, all_els, all_has, all_decs)
 
         for azs, els, has, decs in plot_groups:
             label_idx = np.argmin([abs(el - 5) for el in els])
@@ -255,20 +242,3 @@ def hadec_on_azel_grid(location: EarthLocation) -> go.Figure:
         font=dict(size=18),
     )
     return fig
-
-
-if __name__ == "__main__":
-    # this is the galt
-    # location = EarthLocation.from_geodetic(
-    #     lat=49.32102306, lon=-119.61898028, height=546.566
-    # )
-    # this is alma
-    # location = EarthLocation.of_site('alma')
-    # location = EarthLocation.of_site('parkes')
-    # this is random equatorial site
-    location = EarthLocation.from_geodetic(
-        lat=0.0, lon=0.0, height=1000.0
-    )
-    figure = hadec_on_azel_grid(location)
-    figure.show()
-    # figure.write_html("galt_azel_hadec_map.html")
