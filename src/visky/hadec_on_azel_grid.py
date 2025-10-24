@@ -2,7 +2,7 @@ import numpy as np
 import plotly.graph_objects as go
 from astropy.coordinates import SkyCoord, HADec, AltAz
 from astropy.time import Time
-from .utils import split_two_on_gap_in_one
+from .utils import split_sequences_on_gap_in_one
 from .location import EarthLocation
 
 
@@ -32,8 +32,14 @@ def hadec_on_azel_grid(location: EarthLocation) -> go.Figure:
         all_decs: list[float] = []
 
         for dec in range(-89, 89, 1):
-            azel_coord = SkyCoord(ha, dec, unit=(
-                "deg", "deg"), frame=HADec, location=location, obstime=time).transform_to(AltAz)
+            azel_coord = SkyCoord(
+                ha,
+                dec,
+                unit=("deg", "deg"),
+                frame=HADec,
+                location=location,
+                obstime=time,
+            ).transform_to(AltAz)
             az: float = azel_coord.spherical.lon.degree
             el: float = azel_coord.spherical.lat.degree
 
@@ -46,8 +52,9 @@ def hadec_on_azel_grid(location: EarthLocation) -> go.Figure:
             all_has.append(ha)
             all_decs.append(dec)
 
-        plot_groups = split_two_on_gap_in_one(
-            all_azs, 5, all_els, all_has, all_decs)
+        plot_groups = split_sequences_on_gap_in_one(
+            all_azs, 5, all_els, all_has, all_decs
+        )
 
         for azs, els, has, decs in plot_groups:
             label_idx = np.argmin([abs(el - 5) for el in els])
@@ -85,15 +92,21 @@ def hadec_on_azel_grid(location: EarthLocation) -> go.Figure:
         has = []
         decs = []
         for ha in range(-179, 179, 1):
-            azel_coord = SkyCoord(ha, dec, unit=(
-                "deg", "deg"), frame=HADec, location=location, obstime=time).transform_to(AltAz)
+            azel_coord = SkyCoord(
+                ha,
+                dec,
+                unit=("deg", "deg"),
+                frame=HADec,
+                location=location,
+                obstime=time,
+            ).transform_to(AltAz)
             az = azel_coord.spherical.lon.degree
             el = azel_coord.spherical.lat.degree
             azs.append(az)
             els.append(el)
             has.append(ha)
             decs.append(dec)
-        plot_groups = split_two_on_gap_in_one(azs, 5, els, has, decs)
+        plot_groups = split_sequences_on_gap_in_one(azs, 5, els, has, decs)
         for azs, els, has, decs in plot_groups:
             label_idx = np.argmin([abs(az - 180) for az in azs])
             show_legend_now = not dec_legend_shown
@@ -159,8 +172,13 @@ def hadec_on_azel_grid(location: EarthLocation) -> go.Figure:
         xshift=50,
     )
     if location.lat >= 0:
-        ncp_el = SkyCoord(0, 90, unit=(
-            "deg", "deg"), frame=HADec, location=location, obstime=time).transform_to(AltAz).spherical.lat.degree
+        ncp_el = (
+            SkyCoord(
+                0, 90, unit=("deg", "deg"), frame=HADec, location=location, obstime=time
+            )
+            .transform_to(AltAz)
+            .spherical.lat.degree
+        )
         fig.add_annotation(
             x=360,
             y=ncp_el,
@@ -180,8 +198,18 @@ def hadec_on_azel_grid(location: EarthLocation) -> go.Figure:
             bgcolor="white",
         )
     if location.lat <= 0:
-        scp_el = SkyCoord(0, -90, unit=(
-            "deg", "deg"), frame=HADec, location=location, obstime=time).transform_to(AltAz).spherical.lat.degree
+        scp_el = (
+            SkyCoord(
+                0,
+                -90,
+                unit=("deg", "deg"),
+                frame=HADec,
+                location=location,
+                obstime=time,
+            )
+            .transform_to(AltAz)
+            .spherical.lat.degree
+        )
         fig.add_annotation(
             x=180,
             y=scp_el,
@@ -237,8 +265,7 @@ def hadec_on_azel_grid(location: EarthLocation) -> go.Figure:
         paper_bgcolor="white",
         plot_bgcolor="white",
         showlegend=True,
-        legend=dict(orientation="h", yanchor="bottom",
-                    y=1.02, xanchor="right", x=1),
+        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
         font=dict(size=18),
     )
     return fig

@@ -1,4 +1,4 @@
-def split_two_on_gap_in_one(
+def split_sequences_on_gap_in_one(
     seq_to_split_on: list[float],
     threshold_for_split: float,
     *other_seqs: list[float],
@@ -9,12 +9,12 @@ def split_two_on_gap_in_one(
     first one, but the other_seqs are not inspected. For example:
 
     ```python
-    split_two_on_gap_in_one([1,2,4,5], 1)  # -> [[[1,2],[4,5]]]
-    split_two_on_gap_in_one([1,2,4,5], 1, [3,4,5,9])  # -> [[[1,2],[4,5]],[[3,4],[5,9]]]
+    split_sequences_on_gap_in_one([1,2,4,5], 1)  # -> [[[1,2]],[[4,5]]]
+    split_sequences_on_gap_in_one([1,2,4,5], 1, [7,7,8,9])  # -> [[[1,2],[7,7]],[[3,4],[8,9]]]
 
     Args:
         seq_to_split_on (list[float]): list of floats to split based on a threshold
-        threshold_for_split (float): threshold to split sequence on 
+        threshold_for_split (float): threshold to split sequence on
 
     Raises:
         ValueError: if all sequences are not the same length

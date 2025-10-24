@@ -1,5 +1,5 @@
 [project]
-name = "vispy"
+name = "visky"
 version = "0.0.0"
 description = "Given an earth location, plot lines of constant hour angle and declination on an azimuth-elevation grid"
 readme = "README.md"
@@ -13,9 +13,13 @@ dependencies = [
 [dependency-groups]
 dev = [
     "commitizen>=4.9.1",
+    "pytest>=8.4.2",
     "ruff>=0.14.2",
 ]
 
 [build-system]
 requires = ["uv_build>=0.9.5,<0.10.0"]
 build-backend = "uv_build"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

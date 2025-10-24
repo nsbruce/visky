@@ -13,7 +13,7 @@ An example output for the Australian Telescope National Facilities Parkes telesc
 It is available on pip. Otherwise you can clone this repo and figure it out yourself - this library is a `uv` project.
 
 ```shell
-pip install vispy
+pip install visky
 ```
 
 ## How to use
