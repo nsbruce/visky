@@ -1,6 +1,6 @@
 [project]
 name = "visky"
-version = "0.0.0"
+version = "0.0.1"
 description = "Given an earth location, plot lines of constant hour angle and declination on an azimuth-elevation grid"
 readme = "README.md"
 requires-python = ">=3.12"

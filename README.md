@@ -8,6 +8,8 @@ An example output for the Canadian Dominion Radio Astrophysical Observatories 26
 An example output for the Australian Telescope National Facilities Parkes telescope location.
 ![example-from-parkes](./assets/parkes.png)
 
+**Note:** there are plotting artifacts for some locations. Pull requests are welcome!
+
 ## Installation
 
 It is available on pip. Otherwise you can clone this repo and figure it out yourself - this library is a `uv` project.
@@ -17,6 +19,15 @@ pip install visky
 ```
 
 ## How to use
+
+In it's simplest form,
+
+```python
+from visky import hadec_on_azel_grid, EarthLocation
+hadec_on_azel_grid(EarthLocation.of_site('parkes')).show()
+```
+
+But you can also do more complex things, like set custom Earth locations, and edit the returned plotly figure.
 
 ```python
 from visky import hadec_on_azel_grid, EarthLocation
@@ -30,15 +41,6 @@ figure.show()  # will plot it using the default plotly backend
 figure.update_layout(title="My plot title")
 figures.write_image('myplot.png')
 ```
-
-## To do
-- [x] Implement plotting of HA/Dec lines on Az/El grid
-- [x] Add interactive features to the plot
-- [x] Support southern hemisphere locations (SCP instead of NCP)
-- [ ] Tidy up plot artifacts at various earth locations (lines suddenly veering off or disappearing)
-- [ ] Add more documentation and usage examples
-- [ ] Package as a pip-installable module
-- [ ] Tidy up inline annotations on the plot (works well in north sky, but equator and south are funky)
 
 ## Credit
 
