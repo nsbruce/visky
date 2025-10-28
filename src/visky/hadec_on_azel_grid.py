@@ -6,7 +6,7 @@ from .utils import split_sequences_on_gap_in_one
 from .location import EarthLocation
 
 
-def hadec_on_azel_grid(location: EarthLocation) -> go.Figure:
+def hadec_on_azel_grid(location: EarthLocation, ha_start_deg: int = -160, ha_stop_deg: int = 161, ha_step_deg=20, dec_start_deg: int = -80, dec_stop_deg: int = 81, dec_step_deg: int = 10) -> go.Figure:
     """
     Given an earth location, generate a Ha-Dec map projected onto an azel grid.
 
@@ -25,7 +25,7 @@ def hadec_on_azel_grid(location: EarthLocation) -> go.Figure:
     ha_legend_shown = False
     dec_legend_shown = False
 
-    for ha in range(-160, 161, 20):
+    for ha in range(ha_start_deg, ha_stop_deg, ha_step_deg):
         all_azs: list[float] = []
         all_els: list[float] = []
         all_has: list[float] = []
@@ -86,7 +86,7 @@ def hadec_on_azel_grid(location: EarthLocation) -> go.Figure:
                 align="center",
             )
 
-    for dec in range(-80, 81, 10):
+    for dec in range(dec_start_deg, dec_stop_deg, dec_step_deg):
         azs = []
         els = []
         has = []
@@ -265,7 +265,8 @@ def hadec_on_azel_grid(location: EarthLocation) -> go.Figure:
         paper_bgcolor="white",
         plot_bgcolor="white",
         showlegend=True,
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+        legend=dict(orientation="h", yanchor="bottom",
+                    y=1.02, xanchor="right", x=1),
         font=dict(size=18),
     )
     return fig

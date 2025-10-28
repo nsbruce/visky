@@ -39,6 +39,7 @@ location = EarthLocation.from_geodetic(lat = 49.32102306, lon = -119.61898028, h
 figure = hadec_on_azel_grid(location)  # this is a plotly figure
 figure.show()  # will plot it using the default plotly backend
 figure.update_layout(title="My plot title")
+figure.update_layout(width=1754, height=1240, margin=dict(l=60,r=40, b=60,t=60))  # good for A4 paper
 figures.write_image('myplot.png')
 ```
 
